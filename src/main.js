@@ -67,6 +67,19 @@ function createWindow() {
           }
         }
       ]
+    },
+    {
+      label: 'Developer',
+      submenu: [
+        {
+          label: 'Dev Tools',
+          accelerator:
+            process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+          click() {
+            mainWindow.webContents.toggleDevTools();
+          }
+        }
+      ]
     }
   ];
 
@@ -109,7 +122,7 @@ function createWindow() {
   Menu.setApplicationMenu(menu);
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
