@@ -176,7 +176,10 @@ function openFile() {
   if (!files) return;
 
   const file = files[0];
+
+  // loades file via path acquired from dialog
   const fileContent = fs.readFileSync(file).toString();
 
-  console.log(fileContent);
+  // send files to renderer
+  mainWindow.webContents.send('new-file', fileContent);
 }
