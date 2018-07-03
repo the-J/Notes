@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import Markdown from 'markdown-to-jsx';
 
+import '../styles/app.css';
+
 const { ipcRenderer } = window.require('electron');
 
 class App extends Component {
