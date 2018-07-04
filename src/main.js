@@ -80,14 +80,5 @@ function openDir() {
 
     if (!directory) return console.error('no dir');
 
-    const dir = directory[0];
-
-    fs.readdir(dir, (err, files) => {
-        if (err) return console.error('readdir err:', err);
-        if (!files && !files.length) return console.log('No matches');
-
-        const filteredFiles = files.filter(file => file.includes('.md'));
-        const paths = filteredFiles.map(file => `${dir}/${file}`);
-        mainWindow.webContents.send('new-dir', dir, paths);
-    });
+    mainWindow.webContents.send('new-dir', directory[0]);
 }

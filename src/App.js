@@ -10,28 +10,48 @@ import './styles/app.css';
 
 const settings = window.require('electron-settings');
 const {ipcRenderer} = window.require('electron');
+const fs = window.require('fs');
 
 class App extends Component {
     state = {
         loadedFile: '',
+        filesData: [],
         directory: settings.get('directory') || null
     };
 
     constructor() {
         super();
 
-        ipcRenderer.on('new-file', (event, loadedFile) => {
-            this.setState({loadedFile});
-        });
+        const directory = settings.get('directory');
+        if (directory) {
+            this.loadAndReadFiles(directory);
+        }
 
-        ipcRenderer.on('new-dir', (event, dir, files) => {
-            this.setState({
-                directory: dir
-            });
+        ipcRenderer.on('new-file', (event, loadedFile) => this.setState({loadedFile}));
 
-            settings.set('directory', dir);
+        ipcRenderer.on('new-dir', (event, directory) => {
+            this.setState({directory});
+            settings.set('directory', directory);
+
+            this.loadAndReadFiles(directory);
         });
     }
+
+    loadAndReadFiles = directory => {
+        fs.readdir(directory, (err, files) => {
+            if (err) return console.error('readdir err:', err);
+            if (!files && !files.length) return console.log('No matches');
+
+            const filteredFiles = files.filter(file => file.includes('.md'));
+            const filesData = filteredFiles.map(file => (
+                {
+                    path: `${directory}/${file}`
+                }
+            ));
+
+            this.setState({filesData});
+        });
+    };
 
     render() {
         return (
@@ -40,6 +60,12 @@ class App extends Component {
                 {
                     this.state.directory ? (
                         <Split>
+                            <div>
+                                {
+                                    this.state.filesData.map(file => <h1>{file.path}</h1>)
+                                }
+
+                            </div>
                             <CodeWindow>
                                 <AceEditor
                                     mode="markdown"
@@ -110,5 +136,5 @@ const RenderedWindow = styled.div`
   width: 35%;
   padding: 20px;
   color: #fff;
-  border-left: 1px solid #00ff00;
+  border-left: 1px solid #7ba3ff;
 `;
