@@ -35,6 +35,10 @@ class App extends Component {
 
             this.loadAndReadFiles(directory);
         });
+
+        ipcRenderer.on('save-file', event => {
+            this.saveFile();
+        });
     }
 
     loadAndReadFiles = directory => {
@@ -78,16 +82,23 @@ class App extends Component {
     };
 
     render() {
+        const {activeIndex, index, loadedFile, directory} = this.state;
+
         return (
             <AppWrapp>
                 <Header>Notes</Header>
                 {
-                    this.state.directory ? (
+                    directory ? (
                         <Split>
                             <FilesWindow>
                                 {
                                     this.state.filesData.map((file, i) => (
-                                        <button onClick={this.changeFile(i)}>{i} file</button>
+                                        <FileButton
+                                            active={activeIndex === index}
+                                            onClick={this.changeFile(i)}
+                                        >
+                                            {i} file
+                                        </FileButton>
                                     ))
                                 }
 
@@ -100,12 +111,12 @@ class App extends Component {
                                         this.setState({loadedFile: newContent});
                                     }}
                                     name="mardown_editor"
-                                    value={this.state.loadedFile}
+                                    value={loadedFile}
                                 />
                             </CodeWindow>
 
                             <RenderedWindow>
-                                <Markdown>{this.state.loadedFile}</Markdown>
+                                <Markdown>{loadedFile}</Markdown>
                             </RenderedWindow>
                         </Split>
                     ) : (
@@ -180,5 +191,26 @@ const RenderedWindow = styled.div`
   width: 35%;
   padding: 20px;
   color: #fff;
-  border-left: 1px solid #7ba3ff;
+  border-left: 1px solid #302b3a;
+`;
+
+
+const FileButton = styled.button`
+  padding: 10px;
+  width: 100%;
+  background: #191324;
+  opacity: 0.4;
+  color: #FFF;
+  border: none;
+  border-bottom: solid px #302b3a;
+  transition: 0.3s ease all;
+  &:hover {
+    opacity: 1;
+    border-left: solid 4px #000
+  }
+  
+    ${({active}) => active && `
+        opacity: 1;
+        border-left: solid 4px #000
+    `}
 `;
