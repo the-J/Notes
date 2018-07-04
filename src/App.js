@@ -22,9 +22,8 @@ class App extends Component {
     constructor() {
         super();
 
-        const directory = settings.get('directory');
-        if (directory) {
-            this.loadAndReadFiles(directory);
+        if (settings.get('directory')) {
+            this.loadAndReadFiles(settings.get('directory'));
         }
 
         ipcRenderer.on('new-file', (event, loadedFile) => this.setState({loadedFile}));
@@ -43,29 +42,39 @@ class App extends Component {
             if (!files && !files.length) return console.log('No matches');
 
             const filteredFiles = files.filter(file => file.includes('.md'));
-            const filesData = filteredFiles.map(file => (
-                {
-                    path: `${directory}/${file}`
-                }
-            ));
+            const filesData = filteredFiles.map(file => ({path: `${directory}/${file}`}));
 
-            this.setState({filesData});
+            this.setState({
+                    filesData
+                }, () => this.loadFile(0)
+            );
         });
+    };
+
+    loadFile = index => {
+        const {filesData} = this.state;
+
+        const content = fs.readFileSync(filesData[index].path).toString();
+
+        this.setState({loadedFile: content});
+
     };
 
     render() {
         return (
-            <div>
+            <AppWrapp>
                 <Header>Notes</Header>
                 {
                     this.state.directory ? (
                         <Split>
-                            <div>
+                            <FilesWindow>
                                 {
-                                    this.state.filesData.map(file => <h1>{file.path}</h1>)
+                                    this.state.filesData.map((file, i) => (
+                                        <button onClick={() => this.loadFile(i)}>{file.path}</button>
+                                    ))
                                 }
 
-                            </div>
+                            </FilesWindow>
                             <CodeWindow>
                                 <AceEditor
                                     mode="markdown"
@@ -88,14 +97,16 @@ class App extends Component {
                         </LoadingMessage>
                     )
                 }
-
-            </div>
+            </AppWrapp>
         );
     }
 }
 
 export default App;
 
+const AppWrapp = styled.div`
+  margin-top: 23px;
+`;
 const LoadingMessage = styled.div`
   display: flex;
   justify-content: center;
@@ -125,6 +136,22 @@ const Split = styled.div`
   height: 100vh;
 `;
 
+const FilesWindow = styled.div`
+  background: #2f3129;
+  border-right: solid 1px #302b3a;
+  position: relative;
+  width: 20%;
+  &:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
+    box-shadow: -10px - 20px rgba(0,0,0,0.3) inset;
+  }
+`;
 const CodeWindow = styled.div`
   flex: 1;
   padding-top: 2rem;
