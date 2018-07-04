@@ -15,19 +15,27 @@ function createWindow() {
 
     const template = [{
         label: 'File',
-        submenu: [{
-            label: 'Open Folder',
-            accelerator: process.platform === 'darwin' ? 'Command+O' : 'Ctrl+O',
-            click() {
-                openDir();
+        submenu: [
+            {
+                label: 'Open Folder',
+                accelerator: process.platform === 'darwin' ? 'Command+O' : 'Ctrl+O',
+                click() {
+                    openDir();
+                }
+            }, {
+                label: 'Open File',
+                accelerator: process.platform === 'darwin' ? 'Command+Alt+O' : 'Ctrl+Alt+O',
+                click() {
+                    openFile();
+                }
+            }, {
+                label: 'Open File',
+                accelerator: process.platform === 'darwin' ? 'Command+S' : 'Ctrl+S',
+                click() {
+                    mainWindow.webContents.send('save-file');
+                }
             }
-        }, {
-            label: 'Open File',
-            accelerator: process.platform === 'darwin' ? 'Command+Alt+O' : 'Ctrl+Alt+O',
-            click() {
-                openFile();
-            }
-        }]
+        ]
     }, {
         label: 'Dev',
         submenu: [{
