@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 
 import Markdown from 'markdown-to-jsx';
 import AceEditor from 'react-ace';
@@ -8,45 +8,53 @@ import 'brace/mode/markdown';
 import 'brace/theme/monokai';
 import './styles/app.css';
 
-const { ipcRenderer } = window.require('electron');
+const {ipcRenderer} = window.require('electron');
 
 class App extends Component {
-  state = {
-    loadedFile: ''
-  };
+    state = {
+        loadedFile: ''
+    };
 
-  constructor() {
-    super();
+    constructor() {
+        super();
 
-    ipcRenderer.on('new-file', (event, fileContent) => {
-      this.setState({ loadedFile: fileContent });
-    });
-  }
+        ipcRenderer.on('new-file', (event, loadedFile) => {
+            this.setState({loadedFile});
+        });
 
-  render() {
-    return (
-      <div>
-        <Header>Notes</Header>
-        <Split>
-          <CodeWindow>
-            <AceEditor
-              mode="markdown"
-              theme="monokai"
-              onChange={newContent => {
-                this.setState({ loadedFile: newContent });
-              }}
-              name="mardown_editor"
-              value={this.state.loadedFile}
-            />
-          </CodeWindow>
+        ipcRenderer.on('new-dir', (event, dir, files) => {
+            this.setState({
+                directory: dir
+            });
 
-          <RenderedWindow>
-            <Markdown>{this.state.loadedFile}</Markdown>
-          </RenderedWindow>
-        </Split>
-      </div>
-    );
-  }
+            console.log('client', dir, files);
+        });
+    }
+
+    render() {
+        return (
+            <div>
+                <Header>Notes</Header>
+                <Split>
+                    <CodeWindow>
+                        <AceEditor
+                            mode="markdown"
+                            theme="monokai"
+                            onChange={newContent => {
+                                this.setState({loadedFile: newContent});
+                            }}
+                            name="mardown_editor"
+                            value={this.state.loadedFile}
+                        />
+                    </CodeWindow>
+
+                    <RenderedWindow>
+                        <Markdown>{this.state.loadedFile}</Markdown>
+                    </RenderedWindow>
+                </Split>
+            </div>
+        );
+    }
 }
 
 export default App;

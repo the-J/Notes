@@ -1,189 +1,96 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, dialog, Menu } = require('electron');
+const {app, BrowserWindow, dialog, Menu} = require('electron');
 const fs = require('fs');
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
 function createWindow() {
-  // Create the browser window.
-  let mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    frame: false
-  });
-
-  // and load the index.html of the app.
-  mainWindow.loadURL('http://localhost:3000');
-
-  // inserting basic template  Menu
-  const template = [
-    {
-      label: 'File',
-      submenu: [
-        {
-          label: 'Open Folder'
-        },
-        {
-          label: 'Open File',
-          accelerator: process.platform === 'darwin' ? 'Command+O' : 'Ctrl+O',
-          click() {
-            openFile();
-          }
-        }
-      ]
-    },
-    {
-      label: 'Edit',
-      submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'pasteandmatchstyle' },
-        { role: 'delete' },
-        { role: 'selectall' }
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
-        { role: 'reload' },
-        { role: 'forcereload' },
-        { role: 'toggledevtools' },
-        { type: 'separator' },
-        { role: 'resetzoom' },
-        { role: 'zoomin' },
-        { role: 'zoomout' },
-        { type: 'separator' },
-        { role: 'togglefullscreen' }
-      ]
-    },
-    {
-      role: 'window',
-      submenu: [{ role: 'minimize' }, { role: 'close' }]
-    },
-    {
-      role: 'help',
-      submenu: [
-        {
-          label: 'Learn More',
-          click() {
-            require('electron').shell.openExternal('https://electronjs.org');
-          }
-        }
-      ]
-    },
-    {
-      label: 'Developer',
-      submenu: [
-        {
-          label: 'Dev Tools',
-          accelerator:
-            process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
-          click() {
-            mainWindow.webContents.toggleDevTools();
-          }
-        }
-      ]
-    }
-  ];
-
-  if (process.platform === 'darwin') {
-    template.unshift({
-      label: app.getName(),
-      submenu: [
-        { role: 'about' },
-        { type: 'separator' },
-        { role: 'services', submenu: [] },
-        { type: 'separator' },
-        { role: 'hide' },
-        { role: 'hideothers' },
-        { role: 'unhide' },
-        { type: 'separator' },
-        { role: 'quit' }
-      ]
+    mainWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        frame: false
     });
 
-    // Edit menu
-    template[2].submenu.push(
-      { type: 'separator' },
-      {
-        label: 'Speech',
-        submenu: [{ role: 'startspeaking' }, { role: 'stopspeaking' }]
-      }
-    );
+    mainWindow.loadURL('http://localhost:3000');
 
-    // Window menu
-    template[4].submenu = [
-      { role: 'close' },
-      { role: 'minimize' },
-      { role: 'zoom' },
-      { type: 'separator' },
-      { role: 'front' }
-    ];
-  }
+    const template = [{
+        label: 'File',
+        submenu: [{
+            label: 'Open Folder',
+            accelerator: process.platform === 'darwin' ? 'Command+O' : 'Ctrl+O',
+            click() {
+                openDir();
+            }
+        }, {
+            label: 'Open File',
+            accelerator: process.platform === 'darwin' ? 'Command+Alt+O' : 'Ctrl+Alt+O',
+            click() {
+                openFile();
+            }
+        }]
+    }, {
+        label: 'Dev',
+        submenu: [{
+            label: 'DevConsole',
+            accelerator: process.platform === 'darwin' ? 'Command+Shift+I' : 'Ctrl+Shift+I',
+            click() {
+                mainWindow.webContents.openDevTools();
+            }
+        }]
+    }];
 
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
-
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function() {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null;
-  });
+    mainWindow.on('closed', function () {
+        mainWindow = null;
+    });
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
 
-// Quit when all windows are closed.
-app.on('window-all-closed', function() {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+app.on('window-all-closed', function () {
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 });
 
-app.on('activate', function() {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow();
-  }
+app.on('activate', function () {
+    if (mainWindow === null) {
+        createWindow();
+    }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
 
 // **********************************
-// Open File
 function openFile() {
-  // looing for markdown files
-  const files = dialog.showOpenDialog(mainWindow, {
-    properties: ['openFile'],
-    filters: [{ name: 'Markdown', extensions: ['md', 'markdown', 'txt'] }]
-  });
+    const files = dialog.showOpenDialog(mainWindow, {
+        properties: ['openFile'],
+        filters: [{name: 'Markdown', extensions: ['md', 'markdown', 'txt']}]
+    });
 
-  //  no files
-  if (!files) return;
+    if (!files) return;
 
-  const file = files[0];
+    const file = files[0];
 
-  // loades file via path acquired from dialog
-  const fileContent = fs.readFileSync(file).toString();
+    const fileContent = fs.readFileSync(file).toString();
 
-  // send files to renderer
-  mainWindow.webContents.send('new-file', fileContent);
+    mainWindow.webContents.send('new-file', fileContent);
+}
+
+function openDir() {
+    const directory = dialog.showOpenDialog(mainWindow, {properties: ['opendirectory']});
+
+    if (!directory) return console.error('no dir');
+
+    const dir = directory[0];
+
+    fs.readdir(dir, (err, files) => {
+        if (err) return console.error('readdir err:', err);
+        if (!files && !files.length) return console.log('No matches');
+
+        const filteredFiles = files.filter(file => file.includes('.md'));
+        const paths = filteredFiles.map(file => `${dir}/${file}`);
+        mainWindow.webContents.send('new-dir', dir, paths);
+    });
 }
