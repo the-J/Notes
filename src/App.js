@@ -8,11 +8,13 @@ import 'brace/mode/markdown';
 import 'brace/theme/monokai';
 import './styles/app.css';
 
+const settings = window.require('electron-settings');
 const {ipcRenderer} = window.require('electron');
 
 class App extends Component {
     state = {
-        loadedFile: ''
+        loadedFile: '',
+        directory: settings.get('directory') || null
     };
 
     constructor() {
@@ -27,7 +29,7 @@ class App extends Component {
                 directory: dir
             });
 
-            console.log('client', dir, files);
+            settings.set('directory', dir);
         });
     }
 
@@ -35,23 +37,32 @@ class App extends Component {
         return (
             <div>
                 <Header>Notes</Header>
-                <Split>
-                    <CodeWindow>
-                        <AceEditor
-                            mode="markdown"
-                            theme="monokai"
-                            onChange={newContent => {
-                                this.setState({loadedFile: newContent});
-                            }}
-                            name="mardown_editor"
-                            value={this.state.loadedFile}
-                        />
-                    </CodeWindow>
+                {
+                    this.state.directory ? (
+                        <Split>
+                            <CodeWindow>
+                                <AceEditor
+                                    mode="markdown"
+                                    theme="monokai"
+                                    onChange={newContent => {
+                                        this.setState({loadedFile: newContent});
+                                    }}
+                                    name="mardown_editor"
+                                    value={this.state.loadedFile}
+                                />
+                            </CodeWindow>
 
-                    <RenderedWindow>
-                        <Markdown>{this.state.loadedFile}</Markdown>
-                    </RenderedWindow>
-                </Split>
+                            <RenderedWindow>
+                                <Markdown>{this.state.loadedFile}</Markdown>
+                            </RenderedWindow>
+                        </Split>
+                    ) : (
+                        <LoadingMessage>
+                            <h1>Press CmdOrCtrl + O to open directory</h1>
+                        </LoadingMessage>
+                    )
+                }
+
             </div>
         );
     }
@@ -59,11 +70,20 @@ class App extends Component {
 
 export default App;
 
+const LoadingMessage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #75717c;
+  background: #2f3129;
+  height: 100vh;
+`;
+
 const Header = styled.header`
   background-color: #2f3129;
   color: #75717c;
   font-size: 1rem;
-  height: 23px;
+  height: 23px; 
   text-align: center;
   position: fixed;
   box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.2);
