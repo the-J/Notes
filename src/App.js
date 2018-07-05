@@ -47,7 +47,18 @@ class App extends Component {
             if (!files && !files.length) return console.log('No matches');
 
             const filteredFiles = files.filter(file => file.includes('.md'));
-            const filesData = filteredFiles.map(file => ({path: `${directory}/${file}`}));
+            const filesData = filteredFiles.map(file => {
+                const date = file.substr(
+                    file.indexOf('_') + 1,
+                    file.indexOf('.') - file.indexOf('_') - 1
+                );
+
+                return {
+                    date,
+                    path: `${directory}/${file}`,
+                    title: file.substr(0, file.indexOf('_'))
+                };
+            });
 
             this.setState({
                     filesData
@@ -63,6 +74,7 @@ class App extends Component {
             this.loadFile(index);
         }
     };
+
     loadFile = index => {
         const {filesData} = this.state;
         const content = fs.readFileSync(filesData[index].path).toString();
@@ -94,10 +106,15 @@ class App extends Component {
                                 {
                                     this.state.filesData.map((file, i) => (
                                         <FileButton
-                                            active={activeIndex === index}
+                                            active={activeIndex === i}
                                             onClick={this.changeFile(i)}
                                         >
-                                            {i} file
+                                            <p className="title">
+                                                {file.title}
+                                            </p>
+                                            <p className="data">
+                                                {file.date}
+                                            </p>
                                         </FileButton>
                                     ))
                                 }
@@ -135,6 +152,7 @@ export default App;
 const AppWrapp = styled.div`
   margin-top: 23px;
 `;
+
 const LoadingMessage = styled.div`
   display: flex;
   justify-content: center;
@@ -180,6 +198,7 @@ const FilesWindow = styled.div`
     box-shadow: -10px - 20px rgba(0,0,0,0.3) inset;
   }
 `;
+
 const CodeWindow = styled.div`
   flex: 1;
   padding-top: 2rem;
@@ -194,7 +213,6 @@ const RenderedWindow = styled.div`
   border-left: 1px solid #302b3a;
 `;
 
-
 const FileButton = styled.button`
   padding: 10px;
   width: 100%;
@@ -202,15 +220,27 @@ const FileButton = styled.button`
   opacity: 0.4;
   color: #FFF;
   border: none;
-  border-bottom: solid px #302b3a;
+  border-bottom: solid 1px #302b3a;
   transition: 0.3s ease all;
+  
+  .title {
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin: 0 0 5px;
+  }
+  
+  .data {
+    font-size: 0.7rem;
+    margin: 0 0 5px;
+  };
+  
   &:hover {
     opacity: 1;
     border-left: solid 4px #000
-  }
+  } 
   
-    ${({active}) => active && `
-        opacity: 1;
-        border-left: solid 4px #000
-    `}
+  ${({active}) => active && `
+    opacity: 1;
+    border-left: solid 4px #000
+  `};
 `;
