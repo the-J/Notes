@@ -84,7 +84,7 @@ function openFile() {
 }
 
 function openDir() {
-    const directory = dialog.showOpenDialog(mainWindow, {properties: ['opendirectory']});
+    const directory = dialog.showOpenDialog(mainWindow, {properties: ['openDirectory']});
 
     if (!directory) return console.error('no dir');
 
