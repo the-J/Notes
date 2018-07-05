@@ -20,17 +20,18 @@ class App extends Component {
         loadedFile: '',
         filesData: [],
         activeIndex: 0,
+        newEntry: false,
+        newEntryName: '',
         directory: settings.get('directory') || null
     };
 
     constructor() {
         super();
 
-        if (settings.get('directory')) {
-            this.loadAndReadFiles(settings.get('directory'));
-        }
+        if (settings.get('directory')) this.loadAndReadFiles(settings.get('directory'));
 
         ipcRenderer.on('new-file', (event, loadedFile) => this.setState({loadedFile}));
+        ipcRenderer.on('save-file', event => this.saveFile());
 
         ipcRenderer.on('new-dir', (event, directory) => {
             this.setState({directory});
@@ -38,13 +39,9 @@ class App extends Component {
 
             this.loadAndReadFiles(directory);
         });
-
-        ipcRenderer.on('save-file', event => {
-            this.saveFile();
-        });
     }
 
-    loadAndReadFiles = directory => {
+    loadAndReadFiles = (directory, index = 0) => {
         fs.readdir(directory, (err, files) => {
             if (err) return console.error('readdir err:', err);
             if (!files && !files.length) return console.log('No matches');
@@ -68,12 +65,12 @@ class App extends Component {
                 const aSec = aDate.getTime();
                 const bDate = new Date(b.date);
                 const bSec = bDate.getTime();
-                return bSec - aSec;
+                return bSec - aSec ? 1 : -1;
             });
 
             this.setState({
                     filesData
-                }, () => this.loadFile(0)
+                }, () => this.loadFile(index)
             );
         });
     };
@@ -104,8 +101,35 @@ class App extends Component {
         });
     };
 
+    newFile = e => {
+        e.preventDefault();
+        const {newEntryName, directory, filesData} = this.state;
+
+        const fileDate = dateFns.format(new Date(), 'MM-DD-YYYY');
+        const filePath = `${directory}/${newEntryName}_${fileDate}.md`;
+
+        fs.writeFile(filePath, '', err => {
+            if (err) return console.error('write fill err:', err);
+
+            filesData.unshift({
+                title: newEntryName,
+                path: filePath,
+                date: fileDate
+            });
+
+            this.setState({
+                filesData,
+
+                loadedFile: '',
+                newEntry: false,
+                newEntryName: ''
+            }, () => this.loadAndReadFiles(directory));
+        });
+    };
+
+
     render() {
-        const {activeIndex, index, loadedFile, directory} = this.state;
+        const {activeIndex, newEntry, newEntryName, loadedFile, directory} = this.state;
 
         return (
             <AppWrapp>
@@ -114,6 +138,20 @@ class App extends Component {
                     directory ? (
                         <Split>
                             <FilesWindow>
+                                <Button onClick={() => this.setState({newEntry: !newEntry})}>
+                                    + New Entry
+                                </Button>
+                                {
+                                    newEntry &&
+                                    <form onSubmit={this.newFile}>
+                                        <input
+                                            autoFocus
+                                            type="text"
+                                            value={newEntryName}
+                                            onChange={(e) => this.setState({newEntryName: e.target.value})}
+                                        />
+                                    </form>
+                                }
                                 {
                                     this.state.filesData.map((file, i) => (
                                         <FileButton
@@ -226,6 +264,7 @@ const RenderedWindow = styled.div`
 
 const FileButton = styled.button`
   padding: 10px;
+  display: block;
   width: 100%;
   background: #191324;
   opacity: 0.4;
@@ -254,4 +293,19 @@ const FileButton = styled.button`
     opacity: 1;
     border-left: solid 4px #000
   `};
+`;
+
+const Button = styled.button`
+  background: transparent;
+  color: white;
+  border:solid 1px #323232;
+  border-radius: 4px;
+  margin: 1rem auto;
+  font-size: 1rem;
+  transition: 0.3s ease all;
+  padding: 5px 10px;
+  &:hover {
+    background: #323232;
+    color: #9f9f9f
+  } 
 `;
