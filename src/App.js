@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import Markdown from 'markdown-to-jsx';
 import AceEditor from 'react-ace';
 import styled from 'styled-components';
+import dateFns from 'date-fns';
 
 import 'brace/mode/markdown';
 import 'brace/theme/monokai';
@@ -11,6 +12,8 @@ import './styles/app.css';
 const settings = window.require('electron-settings');
 const {ipcRenderer} = window.require('electron');
 const fs = window.require('fs');
+
+const formatDate = date => dateFns.format(new Date(date), 'MMMM Do YYYY');
 
 class App extends Component {
     state = {
@@ -58,6 +61,14 @@ class App extends Component {
                     path: `${directory}/${file}`,
                     title: file.substr(0, file.indexOf('_'))
                 };
+            });
+
+            filesData.sort((a, b) => {
+                const aDate = new Date(a.date);
+                const aSec = aDate.getTime();
+                const bDate = new Date(b.date);
+                const bSec = bDate.getTime();
+                return bSec - aSec;
             });
 
             this.setState({
@@ -113,7 +124,7 @@ class App extends Component {
                                                 {file.title}
                                             </p>
                                             <p className="data">
-                                                {file.date}
+                                                {formatDate(file.date)}
                                             </p>
                                         </FileButton>
                                     ))
