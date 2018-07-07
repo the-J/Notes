@@ -9,6 +9,7 @@ import './styles/app.css';
 
 import NewFile from './components/NewFile';
 import {FilesList} from './components/FilesList';
+import {LoadMessage} from './components/LoadMessage';
 
 const settings = window.require('electron-settings');
 const {ipcRenderer} = window.require('electron');
@@ -138,9 +139,7 @@ class App extends Component {
                             </RenderedWindow>
                         </Split>
                     ) : (
-                        <LoadingMessage>
-                            <h1>Press CmdOrCtrl + O to open directory</h1>
-                        </LoadingMessage>
+                        <LoadMessage />
                     )
                 }
             </AppWrapp>
@@ -152,15 +151,6 @@ export default App;
 
 const AppWrapp = styled.div`
   margin-top: 23px;
-`;
-
-const LoadingMessage = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #75717c;
-  background: #2f3129;
-  height: 100vh;
 `;
 
 const Header = styled.header`
