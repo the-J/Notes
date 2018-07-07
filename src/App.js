@@ -1,27 +1,24 @@
 import React, {Component} from 'react';
-
 import Markdown from 'markdown-to-jsx';
 import AceEditor from 'react-ace';
 import styled from 'styled-components';
-import dateFns from 'date-fns';
 
 import 'brace/mode/markdown';
 import 'brace/theme/monokai';
 import './styles/app.css';
 
+import NewFile from './components/NewFile';
+import {FilesList} from './components/FilesList';
+
 const settings = window.require('electron-settings');
 const {ipcRenderer} = window.require('electron');
 const fs = window.require('fs');
-
-const formatDate = date => dateFns.format(new Date(date), 'MMMM Do YYYY');
 
 class App extends Component {
     state = {
         loadedFile: '',
         filesData: [],
         activeIndex: 0,
-        newEntry: false,
-        newEntryName: '',
         directory: settings.get('directory') || null
     };
 
@@ -76,8 +73,7 @@ class App extends Component {
     };
 
     changeFile = index => () => {
-        const {activeIndex} = this.state;
-        if (index !== activeIndex) {
+        if (index !== this.state.activeIndex) {
             this.saveFile();
             this.loadFile(index);
         }
@@ -85,11 +81,13 @@ class App extends Component {
 
     loadFile = index => {
         const {filesData} = this.state;
-        const content = fs.readFileSync(filesData[index].path).toString();
-        this.setState({
-            loadedFile: content,
-            activeIndex: index
-        });
+        if (filesData && filesData.length) {
+            const content = fs.readFileSync(filesData[index].path).toString();
+            this.setState({
+                loadedFile: content,
+                activeIndex: index
+            });
+        }
     };
 
     saveFile = () => {
@@ -101,74 +99,28 @@ class App extends Component {
         });
     };
 
-    newFile = e => {
-        e.preventDefault();
-        const {newEntryName, directory, filesData} = this.state;
-
-        const fileDate = dateFns.format(new Date(), 'MM-DD-YYYY');
-        const filePath = `${directory}/${newEntryName}_${fileDate}.md`;
-
-        fs.writeFile(filePath, '', err => {
-            if (err) return console.error('write fill err:', err);
-
-            filesData.unshift({
-                title: newEntryName,
-                path: filePath,
-                date: fileDate
-            });
-
-            this.setState({
-                filesData,
-
-                loadedFile: '',
-                newEntry: false,
-                newEntryName: ''
-            }, () => this.loadAndReadFiles(directory));
-        });
-    };
-
-
     render() {
-        const {activeIndex, newEntry, newEntryName, loadedFile, directory} = this.state;
+        const {activeIndex, loadedFile, filesData, directory} = this.state;
 
         return (
             <AppWrapp>
-                <Header>Notes</Header>
+                <Header>{directory ? directory : 'Notes'}</Header>
                 {
                     directory ? (
                         <Split>
                             <FilesWindow>
-                                <Button onClick={() => this.setState({newEntry: !newEntry})}>
-                                    + New Entry
-                                </Button>
-                                {
-                                    newEntry &&
-                                    <form onSubmit={this.newFile}>
-                                        <input
-                                            autoFocus
-                                            type="text"
-                                            value={newEntryName}
-                                            onChange={(e) => this.setState({newEntryName: e.target.value})}
-                                        />
-                                    </form>
-                                }
-                                {
-                                    this.state.filesData.map((file, i) => (
-                                        <FileButton
-                                            active={activeIndex === i}
-                                            onClick={this.changeFile(i)}
-                                        >
-                                            <p className="title">
-                                                {file.title}
-                                            </p>
-                                            <p className="data">
-                                                {formatDate(file.date)}
-                                            </p>
-                                        </FileButton>
-                                    ))
-                                }
+                                <NewFile
+                                    directory={directory}
+                                    reloadFiles={this.loadAndReadFiles}
+                                />
 
+                                <FilesList
+                                    list={filesData}
+                                    index={activeIndex}
+                                    onChange={this.changeFile}
+                                />
                             </FilesWindow>
+
                             <CodeWindow>
                                 <AceEditor
                                     mode="markdown"
@@ -260,52 +212,4 @@ const RenderedWindow = styled.div`
   padding: 20px;
   color: #fff;
   border-left: 1px solid #302b3a;
-`;
-
-const FileButton = styled.button`
-  padding: 10px;
-  display: block;
-  width: 100%;
-  background: #191324;
-  opacity: 0.4;
-  color: #FFF;
-  border: none;
-  border-bottom: solid 1px #302b3a;
-  transition: 0.3s ease all;
-  
-  .title {
-    font-weight: bold;
-    font-size: 0.9rem;
-    margin: 0 0 5px;
-  }
-  
-  .data {
-    font-size: 0.7rem;
-    margin: 0 0 5px;
-  };
-  
-  &:hover {
-    opacity: 1;
-    border-left: solid 4px #000
-  } 
-  
-  ${({active}) => active && `
-    opacity: 1;
-    border-left: solid 4px #000
-  `};
-`;
-
-const Button = styled.button`
-  background: transparent;
-  color: white;
-  border:solid 1px #323232;
-  border-radius: 4px;
-  margin: 1rem auto;
-  font-size: 1rem;
-  transition: 0.3s ease all;
-  padding: 5px 10px;
-  &:hover {
-    background: #323232;
-    color: #9f9f9f
-  } 
 `;
