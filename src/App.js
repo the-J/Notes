@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
 import Markdown from 'markdown-to-jsx';
 import AceEditor from 'react-ace';
 import styled from 'styled-components';
@@ -6,6 +7,8 @@ import styled from 'styled-components';
 import 'brace/mode/markdown';
 import 'brace/theme/monokai';
 import './styles/app.css';
+
+import {simpleAction} from './actions/simpleAction';
 
 import NewFile from './components/NewFile';
 import {FilesList} from './components/FilesList';
@@ -25,7 +28,6 @@ class App extends Component {
 
     constructor() {
         super();
-
         if (settings.get('directory')) this.loadAndReadFiles(settings.get('directory'));
 
         ipcRenderer.on('new-file', (event, loadedFile) => this.setState({loadedFile}));
@@ -100,6 +102,10 @@ class App extends Component {
         });
     };
 
+    simpleAction = (event) => {
+        this.props.simpleAction();
+    };
+
     render() {
         const {activeIndex, loadedFile, filesData, directory} = this.state;
 
@@ -109,6 +115,9 @@ class App extends Component {
                 {
                     directory ? (
                         <Split>
+                            <button onClick={this.simpleAction}>Test redux action</button>
+                            <pre>{JSON.stringify(this.props)}</pre>
+
                             <FilesWindow>
                                 <NewFile
                                     directory={directory}
@@ -147,10 +156,22 @@ class App extends Component {
     }
 }
 
-export default App;
+
+const mapStateToProps = state => ({
+    ...state
+});
+
+const mapDispatchToProps = dispatch => ({
+    simpleAction: () => dispatch(simpleAction())
+});
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(App);
 
 const AppWrapp = styled.div`
-  margin-top: 23px;
+  margin-top: 2vh;
 `;
 
 const Header = styled.header`
@@ -170,7 +191,7 @@ const Header = styled.header`
 
 const Split = styled.div`
   display: flex;
-  height: 100vh;
+  height: 98vh;
 `;
 
 const FilesWindow = styled.div`
