@@ -19,10 +19,12 @@
   },
   "homepage": "./",
   "dependencies": {
+    "connected-react-router": "^4.3.0",
     "date-fns": "^1.29.0",
     "electron-is-dev": "^0.3.0",
     "electron-react-devtools": "^0.5.3",
     "electron-settings": "^3.2.0",
+    "history": "^4.7.2",
     "lodash": "^4.17.10",
     "markdown-to-jsx": "^6.6.8",
     "prop-types": "^15.6.2",
@@ -31,8 +33,10 @@
     "react-dom": "^16.4.1",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.3.1",
+    "react-router-redux": "^4.0.8",
     "react-scripts": "1.1.4",
     "redux": "^4.0.0",
+    "redux-observable": "^1.0.0",
     "redux-thunk": "^2.3.0",
     "styled-components": "^3.3.3"
   },
@@ -49,7 +53,7 @@
   },
   "devDependencies": {
     "electron": "^2.0.3",
-    "electron-builder": "^20.19.2"
+    "electron-builder": "20.19.2"
   },
   "private": true,
   "prettier": {
