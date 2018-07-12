@@ -6,13 +6,13 @@ import styled from 'styled-components';
 
 import 'brace/mode/markdown';
 import 'brace/theme/monokai';
-import './styles/app.css';
+import '../styles/app.css';
 
-import {simpleAction} from './actions/simpleAction';
+import {simpleAction} from '../actions/simpleAction';
 
-import NewFile from './components/NewFile';
-import {FilesList} from './components/FilesList';
-import {LoadMessage} from './components/LoadMessage';
+import NewFile from './NewFile';
+import {FilesList} from './FilesList';
+import {LoadMessage} from './LoadMessage';
 
 const settings = window.require('electron-settings');
 const {ipcRenderer} = window.require('electron');
@@ -115,9 +115,6 @@ class App extends Component {
                 {
                     directory ? (
                         <Split>
-                            <button onClick={this.simpleAction}>Test redux action</button>
-                            <pre>{JSON.stringify(this.props)}</pre>
-
                             <FilesWindow>
                                 <NewFile
                                     directory={directory}
