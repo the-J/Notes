@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import Markdown from 'markdown-to-jsx';
 import AceEditor from 'react-ace';
 import styled from 'styled-components';
 
@@ -8,11 +7,12 @@ import 'brace/mode/markdown';
 import 'brace/theme/monokai';
 import '../styles/app.css';
 
-import {simpleAction} from '../actions/simpleAction';
+import {editorInputAction} from '../actions/editorInputAction';
 
 import NewFile from './NewFile';
 import {FilesList} from './FilesList';
 import {LoadMessage} from './LoadMessage';
+import MarkdownWindowWrapper from './MarkdownWindowWrapper';
 
 const settings = window.require('electron-settings');
 const {ipcRenderer} = window.require('electron');
@@ -102,8 +102,8 @@ class App extends Component {
         });
     };
 
-    simpleAction = (event) => {
-        this.props.simpleAction();
+    editorInputAction = (input) => {
+        this.props.editorInputAction(input);
     };
 
     render() {
@@ -132,17 +132,16 @@ class App extends Component {
                                 <AceEditor
                                     mode="markdown"
                                     theme="monokai"
-                                    onChange={newContent => {
-                                        this.setState({loadedFile: newContent});
+                                    onChange={input => {
+                                        this.editorInputAction(input);
+                                        this.setState({loadedFile: input});
                                     }}
                                     name="mardown_editor"
                                     value={loadedFile}
                                 />
                             </CodeWindow>
 
-                            <RenderedWindow>
-                                <Markdown>{loadedFile}</Markdown>
-                            </RenderedWindow>
+                            <MarkdownWindowWrapper />
                         </Split>
                     ) : (
                         <LoadMessage />
@@ -159,7 +158,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    simpleAction: () => dispatch(simpleAction())
+    editorInputAction: (input) => dispatch(editorInputAction(input))
 });
 
 export default connect(
@@ -212,12 +211,4 @@ const CodeWindow = styled.div`
   flex: 1;
   padding-top: 2rem;
   background: #2f3129;
-`;
-
-const RenderedWindow = styled.div`
-  background: #2f3129;
-  width: 35%;
-  padding: 20px;
-  color: #fff;
-  border-left: 1px solid #302b3a;
 `;
