@@ -11,7 +11,7 @@ import {editorInputAction} from '../actions/editorInputAction';
 
 import NewFile from './NewFile';
 import {FilesList} from './FilesList';
-import {LoadMessage} from './LoadMessage';
+import LoadMessage from './LoadMessage';
 import MarkdownWindowWrapper from './MarkdownWindowWrapper';
 
 const settings = window.require('electron-settings');
