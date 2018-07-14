@@ -1,78 +1,46 @@
 import React, {Component} from 'react';
-import {connect} from 'react-redux';
-import AceEditor from 'react-ace';
 import styled from 'styled-components';
 
-import 'brace/mode/markdown';
-import 'brace/theme/monokai';
 import '../styles/app.css';
 
-import {editorInputAction} from '../actions/editorInputAction';
+import NewFile from './reusable/NewFile';
+import {FilesList} from './filesList/FilesList';
+import LoadMessage from './reusable/LoadMessage';
+import FileEditorWrapper from './editor/FileEditorWrapper';
 
-import NewFile from './NewFile';
-import {FilesList} from './FilesList';
-import LoadMessage from './LoadMessage';
-import MarkdownWindowWrapper from './MarkdownWindowWrapper';
+import loadDirUtil from '../utils/util-load-dir';
 
 const settings = window.require('electron-settings');
 const {ipcRenderer} = window.require('electron');
 const fs = window.require('fs');
 
-class App extends Component {
-    state = {
-        loadedFile: '',
-        filesData: [],
-        activeIndex: 0,
-        directory: settings.get('directory') || null
-    };
 
+class App extends Component {
     constructor() {
         super();
-        if (settings.get('directory')) this.loadAndReadFiles(settings.get('directory'));
 
-        ipcRenderer.on('new-file', (event, loadedFile) => this.setState({loadedFile}));
+        const filesData = loadDirUtil() || [];
+        const directory = settings.get('directory') || null;
+
+        // ipcRenderer.on('new-file', (event, loadedFile) => this.setState({loadedFile}));
         ipcRenderer.on('save-file', event => this.saveFile());
 
         ipcRenderer.on('new-dir', (event, directory) => {
-            this.setState({directory});
             settings.set('directory', directory);
 
             this.loadAndReadFiles(directory);
         });
+
+        this.state = {
+            directory,
+            filesData,
+            loadedFile: '',
+            activeIndex: 0,
+        };
     }
 
     loadAndReadFiles = (directory, index = 0) => {
-        fs.readdir(directory, (err, files) => {
-            if (err) return console.error('readdir err:', err);
-            if (!files && !files.length) return console.log('No matches');
-
-            const filteredFiles = files.filter(file => file.includes('.md'));
-            const filesData = filteredFiles.map(file => {
-                const date = file.substr(
-                    file.indexOf('_') + 1,
-                    file.indexOf('.') - file.indexOf('_') - 1
-                );
-
-                return {
-                    date,
-                    path: `${directory}/${file}`,
-                    title: file.substr(0, file.indexOf('_'))
-                };
-            });
-
-            filesData.sort((a, b) => {
-                const aDate = new Date(a.date);
-                const aSec = aDate.getTime();
-                const bDate = new Date(b.date);
-                const bSec = bDate.getTime();
-                return bSec - aSec ? 1 : -1;
-            });
-
-            this.setState({
-                    filesData
-                }, () => this.loadFile(index)
-            );
-        });
+        // this.loadFile(index)
     };
 
     changeFile = index => () => {
@@ -102,10 +70,6 @@ class App extends Component {
         });
     };
 
-    editorInputAction = (input) => {
-        this.props.editorInputAction(input);
-    };
-
     render() {
         const {activeIndex, loadedFile, filesData, directory} = this.state;
 
@@ -116,10 +80,7 @@ class App extends Component {
                     directory ? (
                         <Split>
                             <FilesWindow>
-                                <NewFile
-                                    directory={directory}
-                                    reloadFiles={this.loadAndReadFiles}
-                                />
+                                <NewFile reloadFiles={this.loadAndReadFiles} />
 
                                 <FilesList
                                     list={filesData}
@@ -128,20 +89,7 @@ class App extends Component {
                                 />
                             </FilesWindow>
 
-                            <CodeWindow>
-                                <AceEditor
-                                    mode="markdown"
-                                    theme="monokai"
-                                    onChange={input => {
-                                        this.editorInputAction(input);
-                                        this.setState({loadedFile: input});
-                                    }}
-                                    name="mardown_editor"
-                                    value={loadedFile}
-                                />
-                            </CodeWindow>
-
-                            <MarkdownWindowWrapper />
+                            <FileEditorWrapper />
                         </Split>
                     ) : (
                         <LoadMessage />
@@ -152,19 +100,16 @@ class App extends Component {
     }
 }
 
+//
+// const mapStateToProps = state => ({
+//     ...state
+// });
+//
+// const mapDispatchToProps = dispatch => ({
+//     editorInputAction: (input) => dispatch(editorInputAction(input))
+// });
 
-const mapStateToProps = state => ({
-    ...state
-});
-
-const mapDispatchToProps = dispatch => ({
-    editorInputAction: (input) => dispatch(editorInputAction(input))
-});
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(App);
+export default App;
 
 const AppWrapp = styled.div`
   margin-top: 2vh;
@@ -205,10 +150,4 @@ const FilesWindow = styled.div`
     pointer-events: none;
     box-shadow: -10px - 20px rgba(0,0,0,0.3) inset;
   }
-`;
-
-const CodeWindow = styled.div`
-  flex: 1;
-  padding-top: 2rem;
-  background: #2f3129;
 `;

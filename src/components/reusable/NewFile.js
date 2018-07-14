@@ -1,20 +1,25 @@
 import React, {Component, Fragment} from 'react';
 import PropTypes from 'prop-types';
+import {connect} from 'react-redux';
 import dateFns from 'date-fns';
 import styled from 'styled-components';
 
-const fs = window.require('fs');
+import {editorInputAction} from '../../actions/editorInputAction'
 
-export default class NewFile extends Component {
+const fs = window.require('fs');
+const settings = window.require('electron-settings');
+
+class NewFile extends Component {
     state = {
         showCreateFile: false,
-        newFileName: ''
+        newFileName: '',
+        directory: settings.get('directory') || null
     };
 
     newFile = e => {
         e.preventDefault();
-        const {newFileName} = this.state;
-        const {directory, reloadFiles} = this.props;
+        const {newFileName, directory} = this.state;
+        const {reloadFiles} = this.props;
 
         const fileDate = dateFns.format(new Date(), 'MM-DD-YYYY');
         const filePath = `${directory}/${newFileName}_${fileDate}.md`;
@@ -60,10 +65,23 @@ export default class NewFile extends Component {
     }
 }
 
+
+const mapStateToProps = state => ({
+    ...state
+});
+
+const mapDispatchToProps = dispatch => ({
+    editorInputAction: (input) => dispatch(editorInputAction(input))
+});
+
 NewFile.propTypes = {
-    directory: PropTypes.string.isRequired,
     reloadFiles: PropTypes.func.isRequired
 };
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(NewFile);
 
 const Button = styled.button`
   background: transparent;
