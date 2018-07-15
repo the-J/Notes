@@ -4,11 +4,9 @@ import styled from 'styled-components';
 import '../styles/app.css';
 
 import NewFile from './reusable/NewFile';
-import {FilesList} from './filesList/FilesList';
+import FilesListWrapper from './filesList/FilesListWrapper';
 import LoadMessage from './reusable/LoadMessage';
-import FileEditorWrapper from './editor/FileEditorWrapper';
-
-import loadDirUtil from '../utils/util-load-dir';
+import EditorWrapper from './editor/EditorWrapper';
 
 const settings = window.require('electron-settings');
 const {ipcRenderer} = window.require('electron');
@@ -19,10 +17,7 @@ class App extends Component {
     constructor() {
         super();
 
-        const filesData = loadDirUtil() || [];
-        const directory = settings.get('directory') || null;
-
-        // ipcRenderer.on('new-file', (event, loadedFile) => this.setState({loadedFile}));
+        ipcRenderer.on('new-file', (event, loadedFile) => this.setState({loadedFile}));
         ipcRenderer.on('save-file', event => this.saveFile());
 
         ipcRenderer.on('new-dir', (event, directory) => {
@@ -32,8 +27,8 @@ class App extends Component {
         });
 
         this.state = {
-            directory,
-            filesData,
+            directory: settings.get('directory') || '',
+            filesData: [],
             loadedFile: '',
             activeIndex: 0,
         };
@@ -71,7 +66,7 @@ class App extends Component {
     };
 
     render() {
-        const {activeIndex, loadedFile, filesData, directory} = this.state;
+        const {activeIndex, loadedFile, directory} = this.state;
 
         return (
             <AppWrapp>
@@ -82,14 +77,10 @@ class App extends Component {
                             <FilesWindow>
                                 <NewFile reloadFiles={this.loadAndReadFiles} />
 
-                                <FilesList
-                                    list={filesData}
-                                    index={activeIndex}
-                                    onChange={this.changeFile}
-                                />
+                                <FilesListWrapper />
                             </FilesWindow>
 
-                            <FileEditorWrapper />
+                            <EditorWrapper />
                         </Split>
                     ) : (
                         <LoadMessage />
