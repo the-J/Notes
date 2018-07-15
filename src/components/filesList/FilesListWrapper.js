@@ -46,7 +46,6 @@ class FilesListWrapper extends Component {
 
     render() {
         const {index, list} = this.state;
-        console.log({list});
 
         return (
             <FilesList
