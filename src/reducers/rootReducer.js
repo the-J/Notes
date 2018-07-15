@@ -1,13 +1,9 @@
-import { combineReducers } from 'redux';
+import {combineReducers} from 'redux';
 
-import editorInputReducer  from './editorInputReducer';
-import saveFileReducer  from './saveFileReducer';
-import loadFileReducer  from './loadFileReducer';
-import saveDirReducer from './saveDirReducer';
+import editorInputReducer from './editorInputReducer';
+import loadFilesReducer  from './loadFilesReducer';
 
 export default combineReducers({
     editorInputReducer,
-    saveFileReducer,
-    saveDirReducer,
-    loadFileReducer
+    loadFilesReducer
 });

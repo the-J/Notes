@@ -4,9 +4,8 @@ import MarkdownWindow from './MarkdownWindow';
 import Editor from './Editor';
 
 import store from '../../store';
-import {saveFileAction} from '../../actions/saveFileAction';
 
-class FileEditorWrapper extends Component {
+class EditorWrapper extends Component {
     constructor(props) {
         super(props);
         const loadedFile = store.getState().editorInputReducer.result || '';
@@ -21,7 +20,6 @@ class FileEditorWrapper extends Component {
 
         console.log('saveFile fired');
         this.setState({loadedFile});
-        this.props.saveFileAction(loadedFile);
     };
 
 
@@ -41,10 +39,9 @@ class FileEditorWrapper extends Component {
 const mapStateToProps = state => ({...state});
 
 const mapDispatchToProps = dispatch => ({
-    saveFileAction: (loadedFile) => dispatch(saveFileAction(loadedFile))
 });
 
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(FileEditorWrapper);
+)(EditorWrapper);
