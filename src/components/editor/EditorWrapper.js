@@ -8,28 +8,32 @@ import store from '../../store';
 class EditorWrapper extends Component {
     constructor(props) {
         super(props);
-        const loadedFile = store.getState().editorInputReducer.result || '';
+
+        const content = '';
 
         this.state = {
-            loadedFile
+            content
         };
     }
 
-    saveFile = loadedFile => {
-        if (!loadedFile) return;
+    loadFile = () => {
 
-        console.log('saveFile fired');
-        this.setState({loadedFile});
+    };
+
+    updateFile = content => {
+        if (content !== '' && !content) return;
+
+        this.setState({content});
     };
 
 
     render() {
-        const {loadedFile} = this.state;
+        const {content} = this.state;
 
         return (
             <Fragment>
-                <Editor input={loadedFile} saveFile={this.saveFile.bind(this)} />
-                <MarkdownWindow input={loadedFile} />
+                <Editor content={content} updateFile={this.updateFile.bind(this)} />
+                <MarkdownWindow content={content} />
             </Fragment>
         );
     }
@@ -38,8 +42,7 @@ class EditorWrapper extends Component {
 
 const mapStateToProps = state => ({...state});
 
-const mapDispatchToProps = dispatch => ({
-});
+const mapDispatchToProps = dispatch => ({});
 
 export default connect(
     mapStateToProps,

@@ -6,21 +6,21 @@ import AceEditor from 'react-ace';
 import 'brace/mode/markdown';
 import 'brace/theme/monokai';
 
-const Editor = ({input, saveFile}) => (
+const Editor = ({content, updateFile}) => (
     <CodeWindow>
         <AceEditor
             mode="markdown"
             theme="monokai"
-            onChange={input => saveFile(input)}
+            onChange={input => updateFile(input)}
             name="mardown_editor"
-            value={input}
+            value={content}
         />
     </CodeWindow>
 );
 
 Editor.propTypes = {
-    input: PropTypes.string.isRequired,
-    saveFile: PropTypes.func.isRequired
+    content: PropTypes.string.isRequired,
+    updateFile: PropTypes.func.isRequired
 };
 
 export default Editor;
