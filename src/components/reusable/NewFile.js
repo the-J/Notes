@@ -1,36 +1,31 @@
 import React, {Component, Fragment} from 'react';
-import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
-import dateFns from 'date-fns';
 import styled from 'styled-components';
 
-import {editorInputAction} from '../../actions/editorInputAction'
+import createFileMethod from '../../methods/createFileMethod';
 
-const fs = window.require('fs');
 const settings = window.require('electron-settings');
 
 class NewFile extends Component {
     state = {
-        showCreateFile: false,
         newFileName: '',
+        showCreateFile: false,
         directory: settings.get('directory') || null
     };
 
     newFile = e => {
         e.preventDefault();
         const {newFileName, directory} = this.state;
-        const {reloadFiles} = this.props;
 
-        const fileDate = dateFns.format(new Date(), 'MM-DD-YYYY');
-        const filePath = `${directory}/${newFileName}_${fileDate}.md`;
+        if (!directory || !newFileName) return;
 
-        fs.writeFile(filePath, '', err => {
-            if (err) return console.error('write fill err:', err);
+        createFileMethod(directory, newFileName, err => {
+            if (err) console.error('createFileMethod err: ', err);
 
             this.setState({
                 showCreateFile: false,
                 newFileName: ''
-            }, reloadFiles(directory));
+            });
         });
     };
 
@@ -39,14 +34,7 @@ class NewFile extends Component {
 
         return (
             <Fragment>
-                <Button
-                    onClick={() => {
-                        this.setState({
-                            showCreateFile: !showCreateFile,
-                            newFileName: ''
-                        });
-                    }}
-                >
+                <Button onClick={() => this.setState({showCreateFile: !showCreateFile})}>
                     + New Entry
                 </Button>
                 {
@@ -71,12 +59,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    editorInputAction: (input) => dispatch(editorInputAction(input))
+    // editorInputAction: (input) => dispatch(editorInputAction(input))
 });
 
-NewFile.propTypes = {
-    reloadFiles: PropTypes.func.isRequired
-};
 
 export default connect(
     mapStateToProps,
