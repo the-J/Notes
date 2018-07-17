@@ -5,7 +5,7 @@ import store from '../../store';
 
 import {FilesList} from './FilesList';
 
-import {loadFilesAction} from '../../actions/loadFilesAction';
+import {loadFiles} from '../../actions/loadFiles';
 import loadFilesMethod from '../../methods/loadFilesMethod';
 
 const settings = window.require('electron-settings');
@@ -15,7 +15,7 @@ class FilesListWrapper extends Component {
         super(props);
 
         const directory = settings.get('directory') || undefined;
-        const list = store.getState().loadFilesReducer.result || [];
+        const list = store.getState().loadFiles.result || [];
 
         this.state = {
             directory,
@@ -32,7 +32,7 @@ class FilesListWrapper extends Component {
     loadFiles() {
         if (this.state.directory) {
             loadFilesMethod(this.state.directory, filesData => {
-                if (filesData) {
+                if (filesData && filesData.length) {
                     this.setState({list: filesData});
                     this.props.loadFilesAction(filesData);
                 }
@@ -42,6 +42,7 @@ class FilesListWrapper extends Component {
 
     changeSelectedFile(e) {
         console.log(e);
+        console.log(store.getState());
     }
 
     render() {
@@ -63,7 +64,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    loadFilesAction: (filesList) => dispatch(loadFilesAction(filesList))
+    loadFilesAction: (filesList) => dispatch(loadFiles(filesList))
 });
 
 export default connect(
