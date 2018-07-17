@@ -1,9 +1,9 @@
 import {combineReducers} from 'redux';
 
-import editorInputReducer from './editorInputReducer';
-import loadFilesReducer  from './loadFilesReducer';
+import loadFiles  from './loadFiles';
+import readFile  from './readFile';
 
 export default combineReducers({
-    editorInputReducer,
-    loadFilesReducer
+    loadFiles,
+    readFile
 });

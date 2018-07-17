@@ -1,6 +1,6 @@
-const loadFilesReducer = (state = [], action) => {
+const loadFiles = (state = [], action) => {
     switch (action.type) {
-        case 'LOAD_FILES_ACTION':
+        case 'LOAD_FILES':
             return {
                 result: action.payload
             };
@@ -9,4 +9,4 @@ const loadFilesReducer = (state = [], action) => {
     }
 };
 
-export default loadFilesReducer;
+export default loadFiles;
