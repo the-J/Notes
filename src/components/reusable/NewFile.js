@@ -17,6 +17,7 @@ class NewFile extends Component {
         e.preventDefault();
         const {newFileName, directory} = this.state;
 
+        // @todo would there be any message in here?
         if (!directory || !newFileName) return;
 
         createFileMethod(directory, newFileName, err => {
