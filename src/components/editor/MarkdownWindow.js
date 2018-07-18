@@ -2,7 +2,6 @@ import React from 'react';
 import Markdown from 'markdown-to-jsx';
 import styled from 'styled-components';
 
-
 const MarkdownWindow = ({content}) => (
     <RenderedWindow>
         <Markdown>{content}</Markdown>
