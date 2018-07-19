@@ -60,7 +60,7 @@ class FilesListWrapper extends Component {
 
 
 const mapStateToProps = state => ({
-    ...state
+    filesList: state.filesList
 });
 
 const mapDispatchToProps = dispatch => ({

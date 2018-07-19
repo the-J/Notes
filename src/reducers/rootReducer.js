@@ -4,6 +4,6 @@ import loadFiles  from './loadFiles';
 import readFile  from './readFile';
 
 export default combineReducers({
-    loadFiles,
-    readFile
+    filesList: loadFiles,
+    activeFile: readFile
 });
