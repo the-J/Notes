@@ -50,7 +50,7 @@ class FilesListWrapper extends Component {
 
         return (
             <FilesList
-                list={list}
+                list={this.props.filesList}
                 onChange={this.changeSelectedFile}
                 index={index}
             />
