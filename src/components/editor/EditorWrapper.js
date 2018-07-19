@@ -5,6 +5,9 @@ import Editor from './Editor';
 
 import store from '../../store';
 
+const settings = window.require('electron-settings');
+
+
 class EditorWrapper extends Component {
     constructor(props) {
         super(props);
@@ -23,6 +26,7 @@ class EditorWrapper extends Component {
     updateFile = content => {
         if (content !== '' && !content) return;
 
+        console.log('props.state', this.props);
         this.setState({content});
     };
 
