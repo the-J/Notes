@@ -4,6 +4,8 @@ import styled from 'styled-components';
 
 import createFileMethod from '../../methods/createFileMethod';
 
+import {loadFiles} from '../../actions/loadFiles';
+
 const settings = window.require('electron-settings');
 
 class NewFile extends Component {
@@ -27,6 +29,8 @@ class NewFile extends Component {
                 showCreateFile: false,
                 newFileName: ''
             });
+
+            this.props.loadFilesAction();
         });
     };
 
@@ -54,13 +58,10 @@ class NewFile extends Component {
     }
 }
 
-
-const mapStateToProps = state => ({
-    ...state
-});
+const mapStateToProps = state => ({...state});
 
 const mapDispatchToProps = dispatch => ({
-    // editorInputAction: (input) => dispatch(editorInputAction(input))
+    loadFilesAction: () => dispatch(loadFiles())
 });
 
 
