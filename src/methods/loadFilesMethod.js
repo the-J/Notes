@@ -1,4 +1,7 @@
+import shortId from 'shortid';
+
 const fs = window.require('fs');
+
 
 const loadFilesMethod = (directory, cb) => {
     fs.readdir(directory, (err, files) => {
@@ -18,7 +21,9 @@ const loadFilesMethod = (directory, cb) => {
             const path = `${directory}/${file}`;
             const title = file.substr(0, file.indexOf('_'));
 
-            return {date, path, title};
+            const id = shortId.generate();
+
+            return {id, date, path, title};
         });
 
         filesData.sort((a, b) => {
