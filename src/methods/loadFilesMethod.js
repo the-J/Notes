@@ -21,9 +21,9 @@ const loadFilesMethod = (directory, cb) => {
             const path = `${directory}/${file}`;
             const title = file.substr(0, file.indexOf('_'));
 
-            const id = shortId.generate();
+            const _id = shortId.generate();
 
-            return {id, date, path, title};
+            return {_id, date, path, title};
         });
 
         filesData.sort((a, b) => {

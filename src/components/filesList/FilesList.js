@@ -11,7 +11,7 @@ export const FilesList = ({list, onChange, index}) => (
             <FileButton
                 key={i}
                 active={index === i}
-                onClick={() => onChange(file.id)}
+                onClick={() => onChange(file._id)}
             >
                 <p className="title">
                     {file.title}
