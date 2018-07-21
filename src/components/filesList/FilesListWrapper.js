@@ -1,23 +1,32 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
+import _ from 'lodash';
 
 import {FilesList} from './FilesList';
 
 import {loadFiles} from '../../actions/loadFiles';
+import {readFile} from '../../actions/readFile';
 
 class FilesListWrapper extends Component {
     constructor(props) {
         super(props);
-        this.props.loadFilesAction();
+
+        props.loadFilesAction();
 
         this.state = {
             index: 0
         };
     }
 
-    changeSelectedFile(e) {
-        console.log(e);
-    }
+    changeSelectedFile = fileId => {
+        const files = this.props.filesList;
+
+        const selectedFile = _.find(files, file => file._id === fileId);
+        this.props.readFileAction(selectedFile.path);
+
+        const index = _.findIndex(files, file => file._id === fileId);
+        this.setState({index});
+    };
 
     render() {
         const {index} = this.state;
@@ -32,13 +41,13 @@ class FilesListWrapper extends Component {
     }
 }
 
-
 const mapStateToProps = state => ({
     filesList: state.filesList
 });
 
 const mapDispatchToProps = dispatch => ({
-    loadFilesAction: () => dispatch(loadFiles())
+    loadFilesAction: () => dispatch(loadFiles()),
+    readFileAction: (path) => dispatch(readFile(path))
 });
 
 export default connect(
