@@ -18,7 +18,6 @@ class App extends Component {
         super();
 
         ipcRenderer.on('new-file', (event, loadedFile) => this.setState({loadedFile}));
-        ipcRenderer.on('save-file', event => this.saveFile());
 
         ipcRenderer.on('new-dir', (event, directory) => {
             settings.set('directory', directory);
@@ -27,46 +26,12 @@ class App extends Component {
         });
 
         this.state = {
-            directory: settings.get('directory') || '',
-            filesData: [],
-            loadedFile: '',
-            activeIndex: 0,
+            directory: settings.get('directory')
         };
     }
 
-    loadAndReadFiles = (directory, index = 0) => {
-        // this.loadFile(index)
-    };
-
-    changeFile = index => () => {
-        if (index !== this.state.activeIndex) {
-            this.saveFile();
-            this.loadFile(index);
-        }
-    };
-
-    loadFile = index => {
-        const {filesData} = this.state;
-        if (filesData && filesData.length) {
-            const content = fs.readFileSync(filesData[index].path).toString();
-            this.setState({
-                loadedFile: content,
-                activeIndex: index
-            });
-        }
-    };
-
-    saveFile = () => {
-        const {activeIndex, loadedFile, filesData} = this.state;
-
-        fs.writeFile(filesData[activeIndex].path, loadedFile, err => {
-            if (err) return console.error('writeFile err:', err);
-            console.log('files saved');
-        });
-    };
-
     render() {
-        const {activeIndex, loadedFile, directory} = this.state;
+        const {directory} = this.state;
 
         return (
             <AppWrapp>
@@ -75,8 +40,7 @@ class App extends Component {
                     directory ? (
                         <Split>
                             <FilesWindow>
-                                <NewFile reloadFiles={this.loadAndReadFiles} />
-
+                                <NewFile />
                                 <FilesListWrapper />
                             </FilesWindow>
 
