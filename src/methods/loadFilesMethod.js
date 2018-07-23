@@ -13,17 +13,20 @@ const loadFilesMethod = (directory, cb) => {
         const filteredFiles = files.filter(file => file.includes('.md'));
 
         const filesData = filteredFiles.map(file => {
+            const _id = shortId.generate();
+
+            const fullName = file;
+
+            const path = `${directory}/${file}`;
+
+            const title = file.substr(0, file.indexOf('_'));
+
             const date = file.substr(
                 file.indexOf('_') + 1,
                 file.indexOf('.') - file.indexOf('_') - 1
             );
 
-            const path = `${directory}/${file}`;
-            const title = file.substr(0, file.indexOf('_'));
-
-            const _id = shortId.generate();
-
-            return {_id, date, path, title};
+            return {_id, fullName, date, path, title};
         });
 
         filesData.sort((a, b) => {
