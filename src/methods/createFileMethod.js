@@ -1,18 +1,20 @@
 import dateFns from 'date-fns';
 
 const fs = window.require('fs');
+const settings = window.require('electron-settings');
 
 /**
  *
- * @param directory {String}
  * @param fileName {String}
- * @param cb - empty callback
+ * @param cb
  */
-const createFileMethod = (directory = '', fileName, cb) => {
-    const fileDate = dateFns.format(new Date(), 'MM-DD-YYYY');
-    const filePath = `${directory}/${fileName}_${fileDate}.md`;
+const createFileMethod = (fileName, cb) => {
+    const directory = settings.get('directory');
+    const date = dateFns.format(new Date(), 'MM-DD-YYYY');
 
-    fs.writeFile(filePath, '', err => cb(err));
+    const fullName = `${directory}/${fileName}_${date}.md`;
+
+    fs.writeFile(fullName, '', err => cb(err));
 };
 
 export default createFileMethod;
