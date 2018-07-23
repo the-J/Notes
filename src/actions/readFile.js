@@ -4,8 +4,8 @@ export const readFile = path => dispatch => {
     if (path && 'string' === typeof path) {
         readFileMethod(path, fileContent => {
             dispatch({
-                type: ' READ_FILE',
-                payload: fileContent || ''
+                type: 'READ_FILE',
+                payload: fileContent
             });
         });
     }
