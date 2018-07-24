@@ -22,7 +22,7 @@ class NewFile extends Component {
         // @todo would there be any message in here?
         if (!directory || !newFileName) return;
 
-        createFileMethod(directory, newFileName, err => {
+        createFileMethod(newFileName, err => {
             if (err) console.error('createFileMethod err: ', err);
 
             this.setState({
