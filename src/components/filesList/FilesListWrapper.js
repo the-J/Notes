@@ -4,6 +4,8 @@ import _ from 'lodash';
 
 import {FilesList} from './FilesList';
 
+import updateFileMethod from '../../methods/updateFileMethod';
+
 import {loadFiles} from '../../actions/loadFiles';
 import {readFile} from '../../actions/readFile';
 
@@ -11,7 +13,7 @@ class FilesListWrapper extends Component {
     constructor(props) {
         super(props);
 
-        props.loadFilesAction();
+        this.props.loadFilesAction();
 
         this.state = {
             index: 0
@@ -20,20 +22,28 @@ class FilesListWrapper extends Component {
 
     changeSelectedFile = fileId => {
         const files = this.props.filesList;
-
-        const selectedFile = _.find(files, file => file._id === fileId);
-        this.props.readFileAction(selectedFile.path);
-
         const index = _.findIndex(files, file => file._id === fileId);
-        this.setState({index});
+
+        if (this.state.index !== index) {
+            const selectedFile = _.find(files, file => file._id === fileId);
+
+            updateFileMethod(selectedFile.path, this.props.activeFile, err => {
+                if (err) console.error('updateFile err:', err);
+            });
+
+            this.props.readFileAction(selectedFile.path);
+
+            this.setState({index});
+        }
     };
 
     render() {
         const {index} = this.state;
+        const {filesList} = this.props;
 
         return (
             <FilesList
-                list={this.props.filesList}
+                list={filesList}
                 onChange={this.changeSelectedFile}
                 index={index}
             />
@@ -42,7 +52,8 @@ class FilesListWrapper extends Component {
 }
 
 const mapStateToProps = state => ({
-    filesList: state.filesList
+    filesList: state.filesList,
+    activeFile: state.activeFile
 });
 
 const mapDispatchToProps = dispatch => ({
