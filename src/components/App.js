@@ -10,8 +10,6 @@ import EditorWrapper from './editor/EditorWrapper';
 
 const settings = window.require('electron-settings');
 const {ipcRenderer} = window.require('electron');
-const fs = window.require('fs');
-
 
 class App extends Component {
     constructor() {
